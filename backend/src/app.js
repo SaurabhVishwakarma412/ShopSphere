@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
@@ -19,6 +20,7 @@ app.use(
 );
 app.use(express.json({ limit: "2mb" }));
 app.use(cookieParser());
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.get("/", (_req, res) => {
   res.json({ message: "MERN ecommerce API is healthy" });

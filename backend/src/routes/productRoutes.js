@@ -10,6 +10,7 @@ const {
 } = require("../controllers/productController");
 const { protect, authorize } = require("../middleware/authMiddleware");
 const validate = require("../middleware/validateMiddleware");
+const { productImageUpload } = require("../middleware/uploadMiddleware");
 
 const router = express.Router();
 
@@ -24,8 +25,8 @@ const productRules = [
 router.get("/", getProducts);
 router.get("/mine", protect, authorize("seller"), getSellerProducts);
 router.get("/:id", getProduct);
-router.post("/", protect, authorize("seller"), productRules, validate, createProduct);
-router.put("/:id", protect, authorize("seller"), productRules, validate, updateProduct);
+router.post("/", protect, authorize("seller"), productImageUpload.array("images", 5), productRules, validate, createProduct);
+router.put("/:id", protect, authorize("seller"), productImageUpload.array("images", 5), productRules, validate, updateProduct);
 router.delete("/:id", protect, authorize("seller"), deleteProduct);
 
 module.exports = router;

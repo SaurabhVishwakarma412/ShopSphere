@@ -50,7 +50,7 @@ function Home() {
 
       <section className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:flex-row">
         <label className="relative flex-1">
-          <FaSearch className="absolute left-3 top-3.5 text-slate-400" />
+          <FaSearch className="absolute right-3 top-3.5 text-slate-400" />
           <input
             className="form-input pl-10"
             placeholder="Search products"

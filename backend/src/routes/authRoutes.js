@@ -10,14 +10,23 @@ router.post(
   "/register",
   [
     body("name").notEmpty().withMessage("Name is required"),
-    body("email").isEmail().withMessage("Valid email is required"),
+    body("email").trim().isEmail().withMessage("Valid email is required").normalizeEmail(),
     body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
-    body("role").optional().isIn(["customer", "seller"]),
+    body("role").optional().isIn(["customer", "seller"]).withMessage("Role must be customer or seller"),
   ],
   validate,
   register
 );
-router.post("/login", [body("email").isEmail(), body("password").notEmpty()], validate, login);
+router.post(
+  "/login",
+  [
+    body("email").trim().isEmail().withMessage("Valid email is required").normalizeEmail(),
+    body("password").notEmpty().withMessage("Password is required"),
+    body("role").isIn(["customer", "seller"]).withMessage("Choose customer or seller login"),
+  ],
+  validate,
+  login
+);
 router.get("/me", protect, me);
 router.put("/profile", protect, updateProfile);
 

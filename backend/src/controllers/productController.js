@@ -1,5 +1,10 @@
 const Product = require("../models/Product");
 
+const uploadedImageUrls = (req, files = []) => {
+  const baseUrl = process.env.SERVER_URL || `${req.protocol}://${req.get("host")}`;
+  return files.map((file) => `${baseUrl}/uploads/products/${file.filename}`);
+};
+
 const getProducts = async (req, res, next) => {
   try {
     const { search = "", category = "", seller = "" } = req.query;
@@ -41,7 +46,12 @@ const getProduct = async (req, res, next) => {
 
 const createProduct = async (req, res, next) => {
   try {
-    const product = await Product.create({ ...req.body, seller: req.user._id });
+    const images = uploadedImageUrls(req, req.files);
+    const product = await Product.create({
+      ...req.body,
+      ...(images.length && { images, imageUrl: images[0] }),
+      seller: req.user._id,
+    });
     res.status(201).json(product);
   } catch (error) {
     next(error);
@@ -72,6 +82,11 @@ const updateProduct = async (req, res, next) => {
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) product[field] = req.body[field];
     });
+    const images = uploadedImageUrls(req, req.files);
+    if (images.length) {
+      product.images = images;
+      product.imageUrl = images[0];
+    }
     await product.save();
     res.json(product);
   } catch (error) {

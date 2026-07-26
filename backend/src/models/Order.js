@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const orderItemSchema = new mongoose.Schema(
   {
     product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
-    seller: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    seller: { type: mongoose.Schema.Types.ObjectId, ref: "Seller", required: true },
     name: { type: String, required: true },
     imageUrl: { type: String, required: true },
     price: { type: Number, required: true },
@@ -14,7 +14,7 @@ const orderItemSchema = new mongoose.Schema(
 
 const orderSchema = new mongoose.Schema(
   {
-    customer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    customer: { type: mongoose.Schema.Types.ObjectId, ref: "Customer", required: true },
     items: [orderItemSchema],
     shippingAddress: {
       street: { type: String, required: true },

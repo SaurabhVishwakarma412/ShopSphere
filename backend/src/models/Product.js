@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema(
   {
-    seller: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    seller: { type: mongoose.Schema.Types.ObjectId, ref: "Seller", required: true },
     name: { type: String, required: true, trim: true },
     brand: { type: String, default: "" },
     category: { type: String, required: true },
@@ -13,6 +13,10 @@ const productSchema = new mongoose.Schema(
       type: String,
       default:
         "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=80",
+    },
+    images: {
+      type: [String],
+      default: [],
     },
     rating: { type: Number, default: 0 },
     numReviews: { type: Number, default: 0 },

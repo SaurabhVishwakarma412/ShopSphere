@@ -22,11 +22,12 @@ function SellerProducts() {
   const saveProduct = async (payload) => {
     try {
       setLoading(true)
+      const requestOptions = { headers: { 'Content-Type': 'multipart/form-data' } }
       if (editing) {
-        await api.put(`/products/${editing._id}`, payload)
+        await api.put(`/products/${editing._id}`, payload, requestOptions)
         toast.success('Product updated')
       } else {
-        await api.post('/products', payload)
+        await api.post('/products', payload, requestOptions)
         toast.success('Product created')
       }
       setEditing(null)

@@ -14,7 +14,12 @@ function Register() {
     event.preventDefault()
     try {
       setLoading(true)
-      const user = await register(form)
+      const user = await register({
+        name: form.name.trim(),
+        email: form.email.trim().toLowerCase(),
+        password: form.password,
+        role: form.role,
+      })
       toast.success('Account created')
       navigate(user.role === 'seller' ? '/seller' : '/')
     } catch (error) {

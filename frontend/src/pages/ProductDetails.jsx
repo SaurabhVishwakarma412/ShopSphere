@@ -30,13 +30,19 @@ function ProductDetails() {
     toast.success('Added to cart')
   }
 
+  const images = product.images?.length ? product.images : [product.imageUrl]
+
   return (
-    <div className="page-shell space-y-5">
+    <div className="page-shell space-y-4">
       <Link className="inline-flex items-center gap-2 font-bold text-teal-700" to="/">
         <FaChevronLeft /> Back to shop
       </Link>
-      <section className="grid gap-8 rounded-lg border border-slate-200 bg-white p-5 shadow-sm lg:grid-cols-2">
-        <img className="aspect-square w-full rounded-lg object-cover" src={product.imageUrl} alt={product.name} />
+      <section className="grid gap-6 rounded-lg border border-slate-200 bg-white p-2 shadow-sm lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {images.map((image, index) => (
+            <img className={`w-full rounded-lg object-cover ${images.length === 1 ? 'aspect-square sm:col-span-2' : 'aspect-square'}`} src={image} alt={`${product.name} ${index + 1}`} key={image} />
+          ))}
+        </div>
         <div className="space-y-6">
           <div>
             <p className="font-bold uppercase tracking-wide text-teal-700">{product.category}</p>
