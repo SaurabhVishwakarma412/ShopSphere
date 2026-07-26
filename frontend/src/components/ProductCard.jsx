@@ -17,7 +17,7 @@ function ProductCard({ product }) {
   return (
     <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
       <Link to={`/products/${product._id}`}>
-        <img className="aspect-[4/3] w-full object-cover" src={product.imageUrl} alt={product.name} />
+        <img className="aspect-[4/3] w-full border border-slate-200 object-cover" src={product.imageUrl} alt={product.name} />
       </Link>
       <div className="space-y-3 p-4">
         <div>

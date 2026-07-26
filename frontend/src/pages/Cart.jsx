@@ -13,7 +13,7 @@ function Cart() {
         {!items.length && <p className="rounded-lg bg-white p-6 font-bold text-slate-500">Your cart is empty.</p>}
         {items.map((item) => (
           <article className="grid gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-[120px_1fr_auto]" key={item._id}>
-            <img className="size-28 rounded-lg object-cover" src={item.imageUrl} alt={item.name} />
+            <img className="size-28 rounded-lg border border-slate-200 object-cover" src={item.imageUrl} alt={item.name} />
             <div>
               <Link className="text-lg font-black hover:text-teal-700" to={`/products/${item._id}`}>{item.name}</Link>
               <p className="font-bold text-slate-500">{formatCurrency(item.price)}</p>

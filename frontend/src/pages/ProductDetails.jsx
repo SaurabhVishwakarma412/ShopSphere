@@ -40,7 +40,7 @@ function ProductDetails() {
       <section className="grid gap-6 rounded-lg border border-slate-200 bg-white p-2 shadow-sm lg:grid-cols-2">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {images.map((image, index) => (
-            <img className={`w-full rounded-lg object-cover ${images.length === 1 ? 'aspect-square sm:col-span-2' : 'aspect-square'}`} src={image} alt={`${product.name} ${index + 1}`} key={image} />
+            <img className={`w-full rounded-lg border border-slate-200 object-cover ${images.length === 1 ? 'aspect-square sm:col-span-2' : 'aspect-square'}`} src={image} alt={`${product.name} ${index + 1}`} key={image} />
           ))}
         </div>
         <div className="space-y-6">
