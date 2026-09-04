@@ -2,13 +2,15 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useCart } from '../context/CartContext.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import api, { getError } from '../services/api'
 import { formatCurrency } from '../utils/formatters'
 
 function Checkout() {
   const { items, totals, clearCart } = useCart()
+  const { user } = useAuth()
   const [paymentMethod, setPaymentMethod] = useState('card')
-  const [address, setAddress] = useState({ street: '', city: '', state: '', pincode: '' })
+  const [address, setAddress] = useState({ street: user?.address?.street || '', city: user?.address?.city || '', state: user?.address?.state || '', pincode: user?.address?.pincode || '' })
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 

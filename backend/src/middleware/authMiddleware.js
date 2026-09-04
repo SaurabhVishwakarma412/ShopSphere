@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { getAccountModel } = require("../models/User");
+const { getJwtSecret } = require("../utils/generateToken");
 
 const protect = async (req, res, next) => {
   let token;
@@ -14,7 +15,7 @@ const protect = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "dev_only_change_this_secret");
+    const decoded = jwt.verify(token, getJwtSecret());
     const Account = getAccountModel(decoded.role);
     req.user = await Account.findById(decoded.id);
     if (!req.user) {

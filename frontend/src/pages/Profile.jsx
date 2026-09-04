@@ -15,6 +15,16 @@ function Profile() {
     }
   }, [user.role])
 
+  const cancelOrder = async (orderId) => {
+    try {
+      const { data } = await api.put(`/orders/${orderId}/cancel`)
+      setOrders((currentOrders) => currentOrders.map((order) => (order._id === data._id ? data : order)))
+      toast.success('Order cancelled')
+    } catch (error) {
+      toast.error(getError(error))
+    }
+  }
+
   const save = async (event) => {
     event.preventDefault()
     try {
@@ -53,7 +63,12 @@ function Profile() {
                 </p>
               ))}
             </div>
-            <p className="mt-3 text-right text-lg font-black">{formatCurrency(order.totalPrice)}</p>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-lg font-black">{formatCurrency(order.totalPrice)}</p>
+              {['placed', 'packed'].includes(order.orderStatus) && (
+                <button className="btn-secondary text-rose-700" onClick={() => cancelOrder(order._id)}>Cancel order</button>
+              )}
+            </div>
           </article>
         ))}
       </section>

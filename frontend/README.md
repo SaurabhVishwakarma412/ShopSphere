@@ -1,6 +1,12 @@
-# React + Vite
+# ShopSphere storefront
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Local development
+
+1. Copy `.env.example` to `.env` and set `VITE_API_URL` to the backend API URL.
+2. Run `npm install`.
+3. Run `npm run dev`.
+
+For production, run `npm run build` and deploy `dist`. The included Vercel rewrite and Netlify `_redirects` file preserve React Router deep links.
 
 Currently, two official plugins are available:
 

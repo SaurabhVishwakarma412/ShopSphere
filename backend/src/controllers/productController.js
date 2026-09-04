@@ -7,7 +7,7 @@ const uploadedImageUrls = (req, files = []) => {
 
 const getProducts = async (req, res, next) => {
   try {
-    const { search = "", category = "", seller = "" } = req.query;
+    const { search = "", category = "", seller = "", sort = "newest" } = req.query;
     const query = { isActive: true };
     if (search) {
       const searchRegex = { $regex: search, $options: "i" };
@@ -15,7 +15,16 @@ const getProducts = async (req, res, next) => {
     }
     if (category) query.category = category;
     if (seller) query.seller = seller;
-    const products = await Product.find(query).populate("seller", "name email").sort("-createdAt");
+    const sortOptions = {
+      newest: { createdAt: -1 },
+      price_asc: { price: 1 },
+      price_desc: { price: -1 },
+      rating: { rating: -1, numReviews: -1 },
+    };
+    const products = await Product.find(query)
+      .populate("seller", "name email")
+      .sort(sortOptions[sort] || sortOptions.newest)
+      .limit(100);
     res.json(products);
   } catch (error) {
     next(error);
@@ -33,7 +42,7 @@ const getSellerProducts = async (req, res, next) => {
 
 const getProduct = async (req, res, next) => {
   try {
-    const product = await Product.findById(req.params.id).populate("seller", "name email");
+    const product = await Product.findOne({ _id: req.params.id, isActive: true }).populate("seller", "name email");
     if (!product) {
       res.status(404);
       throw new Error("Product not found");

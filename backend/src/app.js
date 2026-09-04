@@ -14,7 +14,14 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: (origin, callback) => {
+      const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("Origin is not allowed by CORS"));
+    },
     credentials: true,
   })
 );
@@ -24,6 +31,10 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.get("/", (_req, res) => {
   res.json({ message: "MERN ecommerce API is healthy" });
+});
+
+app.get("/api/health", (_req, res) => {
+  res.json({ status: "ok", service: "shopsphere-api", timestamp: new Date().toISOString() });
 });
 
 app.use("/api/auth", authRoutes);

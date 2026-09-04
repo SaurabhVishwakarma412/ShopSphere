@@ -23,7 +23,7 @@ const orderSchema = new mongoose.Schema(
       pincode: { type: String, required: true },
     },
     paymentMethod: { type: String, enum: ["card", "upi", "cash"], default: "card" },
-    paymentStatus: { type: String, enum: ["pending", "paid"], default: "paid" },
+    paymentStatus: { type: String, enum: ["pending", "paid"], default: "pending" },
     orderStatus: {
       type: String,
       enum: ["placed", "packed", "shipped", "delivered", "cancelled"],

@@ -9,12 +9,13 @@ function Home() {
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('')
+  const [sort, setSort] = useState('newest')
 
   useEffect(() => {
     const loadProducts = async () => {
       try {
         setLoading(true)
-        const { data } = await api.get('/products', { params: { search, category } })
+        const { data } = await api.get('/products', { params: { search, category, sort } })
         setProducts(data)
         setError('')
       } catch (err) {
@@ -25,7 +26,7 @@ function Home() {
     }
     const timer = setTimeout(loadProducts, 250)
     return () => clearTimeout(timer)
-  }, [search, category])
+  }, [search, category, sort])
 
   const categories = useMemo(() => [...new Set(products.map((product) => product.category))], [products])
 
@@ -58,14 +59,18 @@ function Home() {
             onChange={(event) => setSearch(event.target.value)}
           />
         </label>
-        <select className="form-input md:max-w-60" value={category} onChange={(event) => setCategory(event.target.value)}>
-          <option value="">All categories</option>
-          {categories.map((item) => (
-            <option key={item} value={item}>
-              {item}
-            </option>
-          ))}
-        </select>
+        <div className="grid gap-3 md:grid-cols-2 md:max-w-xl">
+          <select className="form-input" value={category} onChange={(event) => setCategory(event.target.value)}>
+            <option value="">All categories</option>
+            {categories.map((item) => <option key={item} value={item}>{item}</option>)}
+          </select>
+          <select className="form-input" value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort products">
+            <option value="newest">Newest arrivals</option>
+            <option value="rating">Top rated</option>
+            <option value="price_asc">Price: low to high</option>
+            <option value="price_desc">Price: high to low</option>
+          </select>
+        </div>
       </section>
 
       {error && <p className="rounded-lg bg-rose-50 p-4 font-bold text-rose-700">{error}</p>}

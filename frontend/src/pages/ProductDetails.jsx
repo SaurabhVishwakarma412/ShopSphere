@@ -60,7 +60,7 @@ function ProductDetails() {
             <div className="rounded-lg bg-slate-50 p-4">
               <FaShieldAlt className="text-teal-700" />
               <p className="mt-2 font-black">Protected checkout</p>
-              <p className="text-sm text-slate-500">Demo payment status is marked paid</p>
+              <p className="text-sm text-slate-500">Multiple payment methods and order tracking</p>
             </div>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
