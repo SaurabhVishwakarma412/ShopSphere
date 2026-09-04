@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { FaLock, FaShoppingBag, FaStore, FaUser } from 'react-icons/fa'
 import toast from 'react-hot-toast'
 import { useAuth } from '../context/AuthContext.jsx'
 import { getError } from '../services/api'
@@ -20,7 +21,7 @@ function Login() {
         password: form.password,
         role: form.role,
       })
-      toast.success(`Welcome back, ${user.name}`)
+      toast.success(`Welcome back, ${user.name}! 👋`)
       navigate(location.state?.from || (user.role === 'seller' ? '/seller' : '/'), { replace: true })
     } catch (error) {
       toast.error(getError(error))
@@ -30,24 +31,96 @@ function Login() {
   }
 
   return (
-    <div className="page-shell grid place-items-center">
-      <form className="w-full max-w-md space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm" onSubmit={submit}>
-        <h1 className="text-3xl font-black">Login</h1>
-        <input className="form-input" placeholder="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
-        <input className="form-input" placeholder="Password" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
-        <div className="grid grid-cols-2 gap-3">
-          {['customer', 'seller'].map((role) => (
-            <label className={`cursor-pointer rounded-lg border p-4 font-bold ${form.role === role ? 'border-teal-700 bg-teal-50 text-teal-800' : 'border-slate-200'}`} key={role}>
-              <input className="sr-only" type="radio" name="role" value={role} checked={form.role === role} onChange={(e) => setForm({ ...form, role: e.target.value })} />
-              {role[0].toUpperCase() + role.slice(1)}
-            </label>
-          ))}
+    <div className="page-shell min-h-[70vh] flex items-center justify-center py-10">
+      <div className="w-full max-w-md space-y-6 rounded-3xl border border-slate-200/80 bg-white p-8 sm:p-10 shadow-lg shadow-slate-900/5">
+        <div className="text-center space-y-2">
+          <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-gradient-to-tr from-teal-700 to-teal-500 text-white shadow-md">
+            <FaLock className="text-lg" />
+          </div>
+          <h1 className="font-display text-2xl font-black text-slate-900">Welcome Back</h1>
+          <p className="text-xs text-slate-500">Sign in to access your orders, wishlist, or seller hub.</p>
         </div>
-        <button className="btn-primary w-full" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</button>
-        <p className="text-center text-sm text-slate-500">
-          New here? <Link className="font-bold text-teal-700" to="/register">Create an account</Link>
+
+        <form className="space-y-4" onSubmit={submit}>
+          {/* Role selector */}
+          <div className="grid grid-cols-2 gap-3">
+            <label
+              className={`flex items-center justify-center gap-2 cursor-pointer rounded-2xl border p-3 font-bold text-xs transition ${
+                form.role === 'customer'
+                  ? 'border-teal-600 bg-teal-50 text-teal-800 ring-2 ring-teal-600/20'
+                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <input
+                className="sr-only"
+                type="radio"
+                name="role"
+                value="customer"
+                checked={form.role === 'customer'}
+                onChange={(e) => setForm({ ...form, role: e.target.value })}
+              />
+              <FaUser /> Customer
+            </label>
+
+            <label
+              className={`flex items-center justify-center gap-2 cursor-pointer rounded-2xl border p-3 font-bold text-xs transition ${
+                form.role === 'seller'
+                  ? 'border-teal-600 bg-teal-50 text-teal-800 ring-2 ring-teal-600/20'
+                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <input
+                className="sr-only"
+                type="radio"
+                name="role"
+                value="seller"
+                checked={form.role === 'seller'}
+                onChange={(e) => setForm({ ...form, role: e.target.value })}
+              />
+              <FaStore /> Seller
+            </label>
+          </div>
+
+          <label className="block text-xs font-bold text-slate-700">
+            Email Address
+            <input
+              className="form-input mt-1.5"
+              placeholder="name@example.com"
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              required
+            />
+          </label>
+
+          <label className="block text-xs font-bold text-slate-700">
+            Password
+            <input
+              className="form-input mt-1.5"
+              placeholder="••••••••"
+              type="password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              required
+            />
+          </label>
+
+          <button
+            className="btn-primary w-full !py-3 !text-sm shadow-md"
+            disabled={loading}
+            type="submit"
+          >
+            {loading ? 'Authenticating...' : 'Sign In'}
+          </button>
+        </form>
+
+        <p className="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
+          Don't have an account?{' '}
+          <Link className="font-bold text-teal-700 hover:underline" to="/register">
+            Create an account
+          </Link>
         </p>
-      </form>
+      </div>
     </div>
   )
 }

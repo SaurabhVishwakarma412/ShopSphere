@@ -2,28 +2,36 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 
 const createAccountSchema = (role) => {
-  const accountSchema = new mongoose.Schema(
-    {
-      name: { type: String, required: true, trim: true },
-      email: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        trim: true,
-        match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"],
-      },
-      password: { type: String, required: true, minlength: 6, select: false },
-      phone: { type: String, default: "" },
-      address: {
-        street: { type: String, default: "" },
-        city: { type: String, default: "" },
-        state: { type: String, default: "" },
-        pincode: { type: String, default: "" },
-      },
+  const schemaDefinition = {
+    name: { type: String, required: true, trim: true },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"],
     },
-    { timestamps: true }
-  );
+    password: { type: String, required: true, minlength: 6, select: false },
+    phone: { type: String, default: "" },
+    address: {
+      street: { type: String, default: "" },
+      city: { type: String, default: "" },
+      state: { type: String, default: "" },
+      pincode: { type: String, default: "" },
+    },
+  };
+
+  if (role === "customer") {
+    schemaDefinition.wishlist = [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ];
+  }
+
+  const accountSchema = new mongoose.Schema(schemaDefinition, { timestamps: true });
 
   accountSchema.virtual("role").get(() => role);
 
@@ -37,7 +45,7 @@ const createAccountSchema = (role) => {
   };
 
   accountSchema.methods.toAuthJSON = function toAuthJSON() {
-    return {
+    const json = {
       id: this._id,
       name: this.name,
       email: this.email,
@@ -45,6 +53,10 @@ const createAccountSchema = (role) => {
       phone: this.phone,
       address: this.address,
     };
+    if (this.wishlist !== undefined) {
+      json.wishlist = this.wishlist;
+    }
+    return json;
   };
 
   return accountSchema;

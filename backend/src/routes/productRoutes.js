@@ -2,11 +2,14 @@ const express = require("express");
 const { body } = require("express-validator");
 const {
   getProducts,
+  getCategories,
   getSellerProducts,
   getProduct,
   createProduct,
   updateProduct,
   deleteProduct,
+  getProductReviews,
+  createProductReview,
 } = require("../controllers/productController");
 const { protect, authorize } = require("../middleware/authMiddleware");
 const validate = require("../middleware/validateMiddleware");
@@ -22,11 +25,42 @@ const productRules = [
   body("countInStock").isInt({ min: 0 }).withMessage("Stock must be valid"),
 ];
 
+router.get("/categories", getCategories);
 router.get("/", getProducts);
 router.get("/mine", protect, authorize("seller"), getSellerProducts);
 router.get("/:id", getProduct);
-router.post("/", protect, authorize("seller"), productImageUpload.array("images", 5), productRules, validate, createProduct);
-router.put("/:id", protect, authorize("seller"), productImageUpload.array("images", 5), productRules, validate, updateProduct);
+router.post(
+  "/",
+  protect,
+  authorize("seller"),
+  productImageUpload.array("images", 5),
+  productRules,
+  validate,
+  createProduct
+);
+router.put(
+  "/:id",
+  protect,
+  authorize("seller"),
+  productImageUpload.array("images", 5),
+  productRules,
+  validate,
+  updateProduct
+);
 router.delete("/:id", protect, authorize("seller"), deleteProduct);
+
+// Reviews
+router.get("/:id/reviews", getProductReviews);
+router.post(
+  "/:id/reviews",
+  protect,
+  authorize("customer"),
+  [
+    body("rating").isInt({ min: 1, max: 5 }).withMessage("Rating must be between 1 and 5"),
+    body("comment").notEmpty().withMessage("Review comment is required"),
+  ],
+  validate,
+  createProductReview
+);
 
 module.exports = router;
