@@ -1,15 +1,16 @@
 const express = require("express");
 const path = require("path");
+const dotenv = require("dotenv");
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
+
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const dotenv = require("dotenv");
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
+const { getCloudinaryConfigStatus } = require("./config/cloudinary");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
-
-dotenv.config();
 
 const app = express();
 
@@ -38,7 +39,12 @@ app.get("/", (_req, res) => {
 });
 
 app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", service: "shopsphere-api", timestamp: new Date().toISOString() });
+  res.json({
+    status: "ok",
+    service: "shopsphere-api",
+    timestamp: new Date().toISOString(),
+    cloudinary: getCloudinaryConfigStatus(),
+  });
 });
 
 app.use("/api/auth", authRoutes);

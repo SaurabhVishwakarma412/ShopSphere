@@ -18,7 +18,10 @@
 // });
 
 
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
+
+const hasEnv = (key) => Boolean(process.env[key]?.trim());
 
 const app = require("./app");
 const connectDB = require("./config/db");
@@ -35,6 +38,20 @@ if (process.env.NODE_ENV === "production") {
   const missingEnvironment = requiredEnvironment.filter(
     (key) => !process.env[key]
   );
+
+  const hasCloudinaryEnvironment =
+    hasEnv("CLOUDINARY_URL") ||
+    (
+      hasEnv("CLOUDINARY_CLOUD_NAME") &&
+      hasEnv("CLOUDINARY_API_KEY") &&
+      hasEnv("CLOUDINARY_API_SECRET")
+    );
+
+  if (!hasCloudinaryEnvironment) {
+    missingEnvironment.push(
+      "CLOUDINARY_URL or CLOUDINARY_CLOUD_NAME/CLOUDINARY_API_KEY/CLOUDINARY_API_SECRET"
+    );
+  }
 
   if (missingEnvironment.length) {
     throw new Error(

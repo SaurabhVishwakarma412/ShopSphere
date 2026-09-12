@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import {
   FaCartPlus,
@@ -41,7 +41,7 @@ function ProductDetails() {
 
   const inWishlist = product ? isInWishlist(product._id) : false
 
-  const loadProductAndReviews = async () => {
+  const loadProductAndReviews = useCallback(async () => {
     try {
       setLoading(true)
       const [prodRes, revRes] = await Promise.all([
@@ -58,11 +58,11 @@ function ProductDetails() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [id])
 
   useEffect(() => {
     loadProductAndReviews()
-  }, [id])
+  }, [id, loadProductAndReviews])
 
   if (loading) {
     return (

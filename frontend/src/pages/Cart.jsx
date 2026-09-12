@@ -9,9 +9,11 @@ import {
 } from 'react-icons/fa'
 import { useCart } from '../context/CartContext.jsx'
 import { formatCurrency } from '../utils/formatters'
+import { useState } from 'react'
 
 function Cart() {
-  const { items, updateQuantity, removeFromCart, totals } = useCart()
+  const { items, updateQuantity, removeFromCart, totals, couponCode, applyCoupon, removeCoupon } = useCart()
+  const [couponInput, setCouponInput] = useState(couponCode)
 
   const freeShippingThreshold = 999
   const amountNeededForFreeShipping = Math.max(0, freeShippingThreshold - totals.subtotal)
@@ -157,6 +159,37 @@ function Cart() {
               </h2>
 
               <div className="space-y-3 text-sm">
+                <form
+                  className="flex gap-2 border-b border-slate-100 pb-3"
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    applyCoupon(couponInput)
+                  }}
+                >
+                  <input
+                    className="form-input min-w-0 flex-1 text-xs"
+                    placeholder="Coupon code"
+                    value={couponInput}
+                    onChange={(event) => setCouponInput(event.target.value)}
+                    aria-label="Coupon code"
+                  />
+                  {couponCode ? (
+                    <button type="button" className="btn-secondary text-xs" onClick={() => { removeCoupon(); setCouponInput('') }}>
+                      Remove
+                    </button>
+                  ) : (
+                    <button type="submit" className="btn-secondary text-xs">Apply</button>
+                  )}
+                </form>
+                {totals.coupon?.error && couponCode && (
+                  <p className="text-xs text-rose-600">{totals.coupon.error}</p>
+                )}
+                {totals.discount > 0 && (
+                  <div className="flex justify-between text-teal-700">
+                    <span>Discount ({couponCode})</span>
+                    <span className="font-bold">-{formatCurrency(totals.discount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-slate-600">
                   <span>Subtotal</span>
                   <span className="font-bold text-slate-900">{formatCurrency(totals.subtotal)}</span>

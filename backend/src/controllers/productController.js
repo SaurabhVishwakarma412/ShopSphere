@@ -1,9 +1,21 @@
 const Product = require("../models/Product");
 const Review = require("../models/Review");
+const { uploadProductImage, deleteProductImages } = require("../config/cloudinary");
 
-const uploadedImageUrls = (req, files = []) => {
-  const baseUrl = process.env.SERVER_URL || `${req.protocol}://${req.get("host")}`;
-  return files.map((file) => `${baseUrl}/uploads/products/${file.filename}`);
+const uploadImagesToCloudinary = async (files = []) => {
+  if (!files.length) return [];
+  const results = await Promise.allSettled(files.map((file) => uploadProductImage(file)));
+  const uploadedImages = results
+    .filter((result) => result.status === "fulfilled")
+    .map((result) => result.value);
+  const failedUpload = results.find((result) => result.status === "rejected");
+
+  if (failedUpload) {
+    await deleteProductImages(uploadedImages.map((image) => image.publicId));
+    throw failedUpload.reason;
+  }
+
+  return uploadedImages;
 };
 
 const parseArrayField = (value) => {
@@ -119,9 +131,12 @@ const getProduct = async (req, res, next) => {
 };
 
 const createProduct = async (req, res, next) => {
+  let uploadedImages = [];
   try {
     const files = req.files || [];
-    const images = uploadedImageUrls(req, files);
+    uploadedImages = await uploadImagesToCloudinary(files);
+    const images = uploadedImages.map((image) => image.url);
+    const imagePublicIds = uploadedImages.map((image) => image.publicId);
 
     const colors = parseArrayField(req.body.colors);
     const sizes = parseArrayField(req.body.sizes);
@@ -155,16 +170,20 @@ const createProduct = async (req, res, next) => {
     }
     if (images.length > 0) {
       productData.images = images;
+      productData.imagePublicIds = imagePublicIds;
+      productData.imagePublicId = imagePublicIds[0] || "";
     }
 
     const product = await Product.create(productData);
     res.status(201).json(product);
   } catch (error) {
+    await deleteProductImages(uploadedImages.map((image) => image.publicId));
     next(error);
   }
 };
 
 const updateProduct = async (req, res, next) => {
+  let uploadedImages = [];
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
@@ -204,17 +223,21 @@ const updateProduct = async (req, res, next) => {
     if (req.body.tags !== undefined) product.tags = parseArrayField(req.body.tags);
     if (req.body.features !== undefined) product.features = parseArrayField(req.body.features);
 
-    const images = uploadedImageUrls(req, req.files);
+    uploadedImages = await uploadImagesToCloudinary(req.files || []);
+    const images = uploadedImages.map((image) => image.url);
+    const imagePublicIds = uploadedImages.map((image) => image.publicId);
     if (images.length) {
-      product.images = [...(product.images || []), ...images];
-      if (!product.imageUrl || product.imageUrl.includes("unsplash")) {
-        product.imageUrl = images[0];
-      }
+      await deleteProductImages(product.imagePublicIds || []);
+      product.images = images;
+      product.imagePublicIds = imagePublicIds;
+      product.imageUrl = images[0];
+      product.imagePublicId = imagePublicIds[0] || "";
     }
 
     await product.save();
     res.json(product);
   } catch (error) {
+    await deleteProductImages(uploadedImages.map((image) => image.publicId));
     next(error);
   }
 };
@@ -230,6 +253,10 @@ const deleteProduct = async (req, res, next) => {
       res.status(403);
       throw new Error("You can delete only your own products");
     }
+    await deleteProductImages([
+      ...(product.imagePublicIds || []),
+      ...(product.imagePublicId ? [product.imagePublicId] : []),
+    ]);
     await product.deleteOne();
     await Review.deleteMany({ product: req.params.id });
     res.json({ message: "Product deleted" });

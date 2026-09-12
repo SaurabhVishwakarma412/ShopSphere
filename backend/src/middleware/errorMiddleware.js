@@ -5,7 +5,10 @@ const notFound = (req, res, next) => {
 
 const errorHandler = (err, req, res, _next) => {
   const isUploadError = err.name === "MulterError" || err.message === "Only image files can be uploaded";
-  const statusCode = res.statusCode === 200 ? (isUploadError ? 400 : 500) : res.statusCode;
+  const isValidationError = err.name === "ValidationError" || err.name === "CastError";
+  const statusCode = res.statusCode === 200
+    ? (isUploadError || isValidationError ? 400 : 500)
+    : res.statusCode;
   res.status(statusCode).json({
     message: err.message,
     stack: process.env.NODE_ENV === "production" ? undefined : err.stack,

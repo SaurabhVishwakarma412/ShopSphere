@@ -1,10 +1,11 @@
 const Order = require("../models/Order");
 const Product = require("../models/Product");
+const { calculatePromotion, normalizeCouponCode } = require("../utils/promotions");
 
 const createOrder = async (req, res, next) => {
   const reservedItems = [];
   try {
-    const { items, shippingAddress, paymentMethod } = req.body;
+    const { items, shippingAddress, paymentMethod, couponCode = "" } = req.body;
     if (!items?.length) {
       res.status(400);
       throw new Error("Order must include at least one item");
@@ -58,8 +59,18 @@ const createOrder = async (req, res, next) => {
 
     const itemsPrice = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const shippingPrice = itemsPrice > 999 ? 0 : 79;
-    const taxPrice = Number((itemsPrice * 0.18).toFixed(2));
-    const totalPrice = Number((itemsPrice + shippingPrice + taxPrice).toFixed(2));
+    const appliedCouponCode = normalizeCouponCode(couponCode);
+    const promotion = appliedCouponCode
+      ? calculatePromotion({ code: appliedCouponCode, subtotal: itemsPrice, shippingPrice })
+      : null;
+    if (promotion?.error) {
+      res.status(400);
+      throw new Error(promotion.error);
+    }
+    const discountPrice = promotion?.discountAmount || 0;
+    const taxablePrice = Math.max(0, itemsPrice - discountPrice);
+    const taxPrice = Number((taxablePrice * 0.18).toFixed(2));
+    const totalPrice = Number((itemsPrice + shippingPrice - discountPrice + taxPrice).toFixed(2));
 
     const order = await Order.create({
       customer: req.user._id,
@@ -68,6 +79,8 @@ const createOrder = async (req, res, next) => {
       paymentMethod,
       itemsPrice,
       shippingPrice,
+      discountPrice,
+      couponCode: promotion?.code || "",
       taxPrice,
       totalPrice,
     });
@@ -119,6 +132,13 @@ const updateOrderStatus = async (req, res, next) => {
     if (!allowedStatuses.includes(req.body.orderStatus)) {
       res.status(400);
       throw new Error("Invalid order status");
+    }
+    if (req.body.orderStatus === "cancelled" && order.orderStatus !== "cancelled") {
+      await Promise.all(
+        order.items.map((item) =>
+          Product.findByIdAndUpdate(item.product, { $inc: { countInStock: item.quantity } })
+        )
+      );
     }
     order.orderStatus = req.body.orderStatus;
     await order.save();

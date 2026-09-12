@@ -11,4 +11,4 @@ The API runs on `http://localhost:5000`; health checks are available at `/api/he
 
 ## Production
 
-Set `NODE_ENV=production`, `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`, and `SERVER_URL` in the hosting provider. `CLIENT_URL` accepts comma-separated frontend origins. Local product uploads require persistent storage; use an object-storage adapter before deploying the upload feature to an ephemeral host.
+Set `NODE_ENV=production`, `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`, and `SERVER_URL` in the hosting provider. For Cloudinary, set either `CLOUDINARY_URL` or all three separate values: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`. `CLIENT_URL` accepts comma-separated frontend origins. Product image uploads are stored in Cloudinary, while MongoDB stores the image URLs and Cloudinary public ids.

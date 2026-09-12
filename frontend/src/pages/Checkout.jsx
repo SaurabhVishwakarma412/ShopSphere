@@ -15,7 +15,7 @@ import api, { getError } from '../services/api'
 import { formatCurrency } from '../utils/formatters'
 
 function Checkout() {
-  const { items, totals, clearCart } = useCart()
+  const { items, totals, couponCode, clearCart } = useCart()
   const { user } = useAuth()
   const [paymentMethod, setPaymentMethod] = useState('upi')
   const [address, setAddress] = useState({
@@ -43,6 +43,7 @@ function Checkout() {
         })),
         shippingAddress: address,
         paymentMethod,
+        couponCode,
       })
       clearCart()
       toast.success('Order placed successfully! 🎉')
